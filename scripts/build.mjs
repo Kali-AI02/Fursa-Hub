@@ -27,6 +27,10 @@ const SITE = {
   heroImage: '',
   // After AdSense approval, paste the <script> tag Google gives you here:
   adsenseHead: '',
+  // Google Search Console verification code (the content="..." part of the meta tag)
+  googleVerification: 'KNgnhlyvS3wz_3uPlrjBfV-LSx4hrAqM-tvZrlEtB54',
+  // Google Analytics Measurement ID, e.g. 'G-XXXXXXXXXX' ('' = off)
+  analyticsId: '',
 };
 
 const root = new URL('../', import.meta.url);
@@ -123,6 +127,9 @@ ${base ? `<base href="${BASE_PATH}">` : ''}
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta name="theme-color" content="#4f46e5">
+${SITE.googleVerification ? `<meta name="google-site-verification" content="${esc(SITE.googleVerification)}">` : ''}
+${SITE.analyticsId ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(SITE.analyticsId)}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${esc(SITE.analyticsId)}');</script>` : ''}
 <link rel="icon" href="${r}img/favicon.svg" type="image/svg+xml">
 <script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="${r}css/style.css">
