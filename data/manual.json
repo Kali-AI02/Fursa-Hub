@@ -1,1 +1,88 @@
-[]
+[
+  {
+    "id": "my-csc-shared-2027",
+    "type": "scholarship",
+    "title": "Commonwealth Shared Scholarships 2027/28 – Fully Funded Master's in the UK",
+    "org": "Commonwealth Scholarship Commission (UK)",
+    "country": "United Kingdom",
+    "deadline": "2026-12-08",
+    "url": "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-shared-scholarships/",
+    "source": "CSC official site",
+    "summary": "Full master's funding at a participating UK university: tuition, return flights and a monthly stipend of £1,712 (£2,000 in London). Open to citizens of eligible Commonwealth countries, including Rwanda, Kenya, Uganda, Tanzania, Ghana and Nigeria, who have a 2:1 degree, have not studied or worked a year or more in a high-income country, and cannot afford UK study otherwise. Apply online via CSC Central before 16:00 GMT on 8 December 2026.",
+    "tags": ["Master's", "Fully funded", "Commonwealth"],
+    "featured": true
+  },
+  {
+    "id": "my-eth-esop-2027",
+    "type": "scholarship",
+    "title": "ETH Zurich Excellence Scholarship & Opportunity Programme (ESOP) 2027",
+    "org": "ETH Zurich",
+    "country": "Switzerland",
+    "deadline": "2026-11-30",
+    "url": "https://ethz.ch/en/studies/financial/scholarships/excellencescholarship.html",
+    "source": "ETH Zurich",
+    "summary": "One of Europe's most prestigious master's scholarships: a tuition waiver plus CHF 13,500 per semester for living costs. Open to all nationalities who graduated in the top 10% of their Bachelor's. You apply together with your Master's application on eApply. Note the deadline is 30 November 2026 at 11:59 in the MORNING (Swiss time), not midnight.",
+    "tags": ["Master's", "Fully funded", "All nationalities"]
+  },
+  {
+    "id": "my-gates-cambridge-2027",
+    "type": "scholarship",
+    "title": "Gates Cambridge Scholarship 2027 – Fully Funded Postgraduate Study at Cambridge",
+    "org": "Gates Cambridge Trust",
+    "country": "United Kingdom",
+    "deadline": "2027-01-06",
+    "url": "https://www.gatescambridge.org/apply/timeline/",
+    "source": "Gates Cambridge",
+    "summary": "Full-cost scholarships for outstanding applicants from outside the UK to do a postgraduate degree (master's or PhD) at the University of Cambridge. You apply through Cambridge's graduate application and complete the Gates section. Deadlines depend on your course: 8 December 2026 or 6 January 2027 (11:59pm UK time). Check your course's funding deadline first.",
+    "tags": ["Master's", "PhD", "Fully funded", "All nationalities"]
+  },
+  {
+    "id": "my-sciencespo-mastercard-2027",
+    "type": "scholarship",
+    "title": "Mastercard Foundation Scholars Program at Sciences Po 2027 (Master's in Paris)",
+    "org": "Sciences Po & Mastercard Foundation",
+    "country": "France",
+    "deadline": "2026-12-14",
+    "url": "https://www.sciencespo.fr/students/en/fees-funding/bursaries-financial-aid/mastercard-foundation-scholarships/graduate-study/",
+    "source": "Sciences Po",
+    "summary": "Covers the full financial needs of African students admitted to a two-year master's at Sciences Po in Paris. You must hold African citizenship only, be under 35 on 1 September 2027, and not already hold a master's. Apply by 23 November 2026 for an early admission decision, or by 14 December 2026 at the latest. Results in April 2027.",
+    "tags": ["Master's", "Fully funded", "Africa"],
+    "featured": true
+  },
+  {
+    "id": "my-afox-oxford-mba-2027",
+    "type": "scholarship",
+    "title": "Mastercard Foundation AfOx Graduate Scholarships – Oxford MBA 2027-28",
+    "org": "Saïd Business School, University of Oxford",
+    "country": "United Kingdom",
+    "deadline": "2027-01-06",
+    "url": "https://www.sbs.ox.ac.uk/oxford-experience/scholarships-and-funding/afox-graduate-scholarships",
+    "source": "Oxford Saïd",
+    "summary": "Up to three scholarships for African nationals or residents joining the Oxford MBA, covering course fees and a living-costs grant, plus leadership training and networking. There is no separate scholarship form: submit your Oxford MBA application by 6 January 2027 and show your commitment to Africa's development.",
+    "tags": ["MBA", "Fully funded", "Africa"]
+  },
+  {
+    "id": "my-kuleuven-2027",
+    "type": "scholarship",
+    "title": "KU Leuven Scholarships 2027-28: Scholarship for Africa, Master Mind & Inspiring the Outstanding",
+    "org": "KU Leuven",
+    "country": "Belgium",
+    "deadline": "2027-01-15",
+    "url": "https://www.kuleuven.be/scholarships/year/2027-2028/ku-leuven-scholarship-for-africa",
+    "source": "KU Leuven",
+    "summary": "One application puts you forward for three master's scholarships at KU Leuven in Belgium. Scholarship for Africa: full tuition waiver plus €4,000 for nationals and residents of listed African countries. Master Mind: €10,750 (all nationalities). Inspiring the Outstanding: tuition waiver plus €13,200 per year. Submit your master's application with the candidacy form AND register online by 15 January 2027, 23:59 CET.",
+    "tags": ["Master's", "Africa", "All nationalities"]
+  },
+  {
+    "id": "my-si-sgp-2027",
+    "type": "scholarship",
+    "title": "Swedish Institute Scholarship for Global Professionals 2027/28",
+    "org": "Swedish Institute",
+    "country": "Sweden",
+    "deadline": "2027-02-24",
+    "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+    "source": "Swedish Institute",
+    "summary": "Fully funded master's studies in Sweden for future leaders with work and leadership experience from 34 eligible countries (check the list). IMPORTANT, two steps: first apply to an eligible master's programme at universityadmissions.se by 15 January 2027, then apply for the scholarship between 8 and 24 February 2027 (closes 14:59 CET).",
+    "tags": ["Master's", "Fully funded", "Leadership"]
+  }
+]
