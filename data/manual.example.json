@@ -1,0 +1,22 @@
+[
+  {
+    "type": "scholarship",
+    "title": "Example: Master's Scholarship in Public Health",
+    "org": "Example University",
+    "country": "Germany",
+    "remote": false,
+    "deadline": "2027-01-31",
+    "url": "https://example.com/official-scholarship-page",
+    "summary": "Write 2–3 sentences in your own words: who can apply, what it covers, and one tip for applicants.",
+    "tags": ["Health", "Master's"],
+    "featured": true
+  },
+  {
+    "type": "internship",
+    "title": "Example: Communications Intern",
+    "org": "Example NGO",
+    "country": "Rwanda",
+    "deadline": "2026-12-15",
+    "url": "https://example.com/apply"
+  }
+]
