@@ -30,7 +30,7 @@ const SITE = {
   // Google Search Console verification code (the content="..." part of the meta tag)
   googleVerification: 'KNgnhlyvS3wz_3uPlrjBfV-LSx4hrAqM-tvZrlEtB54',
   // Google Analytics Measurement ID, e.g. 'G-XXXXXXXXXX' ('' = off)
-  analyticsId: '',
+  analyticsId: 'G-0SVXYLWFEQ',
 };
 
 const root = new URL('../', import.meta.url);
