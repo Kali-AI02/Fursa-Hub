@@ -1,0 +1,18 @@
+{
+  "_help": "Employers whose public job boards FursaHub imports. Only jobs located in Africa (or remote) are kept. To add one: find the company's careers page; if its URL contains boards.greenhouse.io/NAME, jobs.lever.co/NAME or apply.workable.com/NAME, add {\"ats\": \"greenhouse|lever|workable\", \"slug\": \"NAME\", \"name\": \"Company name\"}.",
+  "employers": [
+    { "ats": "greenhouse", "slug": "oneacrefund", "name": "One Acre Fund" },
+    { "ats": "greenhouse", "slug": "flyzipline", "name": "Zipline" },
+    { "ats": "greenhouse", "slug": "givedirectly", "name": "GiveDirectly" },
+    { "ats": "greenhouse", "slug": "moniepoint", "name": "Moniepoint" },
+    { "ats": "greenhouse", "slug": "luno", "name": "Luno" },
+    { "ats": "greenhouse", "slug": "educate", "name": "Educate!" },
+    { "ats": "greenhouse", "slug": "thunes", "name": "Thunes" },
+    { "ats": "greenhouse", "slug": "branch", "name": "Branch International" },
+    { "ats": "greenhouse", "slug": "acumen", "name": "Acumen" },
+    { "ats": "lever", "slug": "tala", "name": "Tala" },
+    { "ats": "lever", "slug": "copia", "name": "Copia Global" },
+    { "ats": "workable", "slug": "kuda", "name": "Kuda" },
+    { "ats": "workable", "slug": "cgiar", "name": "CGIAR" }
+  ]
+}

@@ -66,8 +66,16 @@ const CATEGORIES = [
   ['training', 'Training', 'Courses & workshops', '📚', 'scholarships.html?type=training'],
   ['consultancy', 'Consultancies', 'Short-term contracts', '🧭', 'jobs.html?type=consultancy'],
   ['volunteer', 'Volunteering', 'Give back & learn', '🤝', 'internships.html?type=volunteer'],
-  ['remote', 'Remote', 'Work from anywhere', '🌍', 'index.html?tab=remote#browse'],
+  ['remote', 'Remote', 'Work from anywhere', '💻', 'index.html?tab=remote#browse'],
 ];
+CATEGORIES.unshift(['africa', 'Jobs in Africa', 'Rwanda, Kenya, Nigeria & more', '🌍', 'index.html?tab=africa#browse']);
+
+// Countries counted as "in Africa" (opportunities there are shown first)
+const AFRICAN = new Set(['Rwanda', 'Kenya', 'South Africa', 'Nigeria', 'Ghana', 'Uganda', 'Tanzania', 'Ethiopia', 'Zambia', 'Malawi',
+  'Mozambique', 'Senegal', "Côte d'Ivoire", 'DR Congo', 'Burundi', 'Cameroon', 'Egypt', 'Morocco', 'Zimbabwe', 'Botswana', 'Namibia',
+  'Sierra Leone', 'Liberia', 'Madagascar', 'Benin', 'Togo', 'Mali', 'Burkina Faso', 'Guinea', 'Gambia', 'Tunisia', 'Angola', 'Somalia',
+  'South Sudan', 'Sudan', 'Lesotho', 'Eswatini', 'Africa (multiple countries)']);
+const isAfrica = (o) => AFRICAN.has(o.country);
 
 const fmtDate = (d) =>
   new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -242,6 +250,12 @@ function homePage(items, guides) {
   const counts = {};
   for (const o of items) counts[o.type] = (counts[o.type] || 0) + 1;
   counts.remote = items.filter((o) => o.remote).length;
+  counts.africa = items.filter(isAfrica).length;
+  // Most active African countries, with Rwanda, Kenya and South Africa always shown when they have listings
+  const byCountry = {};
+  for (const o of items) if (isAfrica(o) && o.country !== 'Africa (multiple countries)') byCountry[o.country] = (byCountry[o.country] || 0) + 1;
+  const pinned = ['Rwanda', 'Kenya', 'South Africa'].filter((c) => byCountry[c]);
+  const topCountries = [...pinned, ...Object.keys(byCountry).filter((c) => !pinned.includes(c)).sort((a, b) => byCountry[b] - byCountry[a])].slice(0, 7);
   const spotlight = items.filter((o) => o.deadline).sort((a, b) => a.deadline.localeCompare(b.deadline)).slice(0, 3);
   const heroBg = SITE.heroImage ? ` style="--hero-img:url('${esc(SITE.heroImage)}')"` : '';
 
@@ -250,7 +264,7 @@ function homePage(items, guides) {
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow"><i class="pulse"></i> Updated every day · closed listings removed automatically</span>
+      <span class="eyebrow"><i class="pulse"></i> Updated every day · Jobs across Africa &amp; worldwide</span>
       <h1>Your next <span class="rotator" aria-live="off"><span>job</span><span>scholarship</span><span>internship</span><span>grant</span><span>fellowship</span></span><br>starts here.</h1>
       <p class="lead">Discover opportunities from around the world that you can still apply for: free, in one place, with no fees to apply.</p>
       ${searchBar('Try “nursing”, “Rwanda”, “master’s”, “remote”…')}
@@ -259,8 +273,9 @@ function homePage(items, guides) {
         <a href="jobs.html">💼 Jobs</a>
         <a href="internships.html">🚀 Internships</a>
         <a href="grants.html">💰 Grants</a>
-        <a href="index.html?tab=remote#browse">🌍 Remote</a>
+        <a href="index.html?tab=africa#browse">🌍 In Africa</a>
       </div>
+      ${topCountries.length ? `<div class="countries"><span>📍 Popular:</span>${topCountries.map((c) => `<a href="index.html?country=${encodeURIComponent(c)}#browse">${esc(c)}</a>`).join('')}</div>` : ''}
       <div class="hero-ctas">
         <a class="btn" href="#browse">Browse opportunities ${svg('arrow', 18)}</a>
         <a class="btn light" href="contact.html#post">${svg('plus', 18)} Post an opportunity</a>
@@ -279,7 +294,7 @@ function homePage(items, guides) {
       ${stat(items.length, 'Open opportunities', 'open')}
       ${stat(week, 'Closing this week', 'week')}
       ${stat(fresh, 'Added this week', 'fresh')}
-      ${stat(countries, 'Countries & regions', 'countries')}
+      ${stat(counts.africa, 'In Africa', 'africa')}
     </div>
   </div>
 </section>
@@ -499,8 +514,10 @@ await writeFile(new URL('.nojekyll', out), ''); // GitHub Pages: serve files as 
 // Slim data file the browser loads
 await writeFile(new URL('data/opportunities.json', out), JSON.stringify({
   updated: data.updated,
-  items: items.map(({ id, type, title, org, country, remote, posted, deadline, summary, slug, featured }) =>
-    ({ id, type, title, org, country, remote, posted, deadline, slug, featured, summary: summary ? summary.slice(0, 180) : '' })),
+  items: items.map((o) => {
+    const { id, type, title, org, country, remote, posted, deadline, summary, slug, featured } = o;
+    return { id, type, title, org, country, remote, posted, deadline, slug, featured, africa: isAfrica(o) || undefined, summary: summary ? summary.slice(0, 180) : '' };
+  }),
 }));
 
 const urls = [];

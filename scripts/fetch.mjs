@@ -15,8 +15,37 @@ const TODAY = new Date().toISOString().slice(0, 10);
 
 // ---------- helpers ----------
 
+const decodeEntities = (s = '') =>
+  s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+
+// ---------- African countries (used to keep only African jobs from employer boards) ----------
+const AFRICA = [
+  ['Rwanda', 'rwanda|kigali|musanze|huye|rubavu'], ['Kenya', 'kenya|nairobi|mombasa|kisumu|nakuru|eldoret|kakamega|bungoma'],
+  ['South Africa', 'south africa|johannesburg|cape town|durban|pretoria|randfontein|gqeberha|sandton'],
+  ['Nigeria', 'nigeria|lagos|abuja|ibadan|kano|port harcourt|bauchi|ekiti|ogoja|enugu|kaduna'], ['Ghana', 'ghana|accra|kumasi|tamale'],
+  ['Uganda', 'uganda|kampala|gulu|mbarara'], ['Tanzania', 'tanzania|dar es salaam|arusha|dodoma|mwanza'],
+  ['Ethiopia', 'ethiopia|addis'], ['Zambia', 'zambia|lusaka'], ['Malawi', 'malawi|lilongwe|blantyre'],
+  ['Mozambique', 'mozambique|maputo'], ['Senegal', 'senegal|dakar'], ["Côte d'Ivoire", "c[oô]te d.ivoire|ivory coast|abidjan"],
+  ['DR Congo', 'drc|rdc|congo|kinshasa|goma|bukavu|lukula|bandundu'], ['Burundi', 'burundi|bujumbura|muramvya|gitega'],
+  ['Cameroon', 'cameroon|douala|yaound'], ['Egypt', 'egypt|cairo'], ['Morocco', 'morocco|casablanca|rabat|agadir|marrakech'],
+  ['Zimbabwe', 'zimbabwe|harare'], ['Botswana', 'botswana|gaborone'], ['Namibia', 'namibia|windhoek'],
+  ['Sierra Leone', 'sierra leone|freetown'], ['Liberia', 'liberia|monrovia'], ['Madagascar', 'madagascar|antananarivo'],
+  ['Benin', 'benin|cotonou'], ['Togo', 'togo|lom[eé]'], ['Mali', 'mali\\b|bamako'], ['Burkina Faso', 'burkina|ouagadougou'],
+  ['Guinea', 'guinea|conakry'], ['Gambia', 'gambia|banjul'], ['Tunisia', 'tunisia|tunis'], ['Angola', 'angola|luanda'],
+  ['Somalia', 'somalia|mogadishu'], ['South Sudan', 'south sudan|juba'], ['Sudan', 'sudan|khartoum'], ['Lesotho', 'lesotho'], ['Eswatini', 'eswatini|swaziland'],
+].map(([name, re]) => [name, new RegExp(`\\b(${re})`, 'i')]);
+
+const africanCountry = (loc = '') => {
+  for (const [name, re] of AFRICA) if (re.test(loc)) return name;
+  return /\b(africa|east africa|west africa|sub-saharan)\b/i.test(loc) ? 'Africa (multiple countries)' : null;
+};
+const jobType = (title) =>
+  /\bintern(ship)?\b|\bstagiaire\b|\bgraduate trainee\b/i.test(title) ? 'internship'
+    : /\bfellow(ship)?\b/i.test(title) ? 'fellowship'
+    : /\bconsult(ant|ancy)\b/i.test(title) ? 'consultancy' : 'job';
+
 const stripHtml = (s = '') =>
-  s.replace(/<[^>]*>/g, ' ')
+  decodeEntities(s).replace(/<[^>]*>/g, ' ')
    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'")
    .replace(/&quot;|&ldquo;|&rdquo;/g, '"').replace(/&[a-z]+;/g, ' ')
    .replace(/[*#_>`]+/g, ' ') // markdown symbols
@@ -104,6 +133,47 @@ const sources = {
     }));
   },
 
+  // Jobs in Africa from employers' public job boards (list in data/employers.json).
+  async employers() {
+    const { employers = [] } = JSON.parse(await readFile(new URL('../data/employers.json', import.meta.url), 'utf8'));
+    const items = [];
+    const add = (e, { id, title, loc, url, posted, html, remote }) => {
+      const country = africanCountry(loc);
+      if (!country) return; // keep African jobs only
+      items.push({
+        id: `em-${e.ats.slice(0, 2)}-${e.slug}-${id}`,
+        type: jobType(title),
+        title: title.trim(),
+        org: e.name,
+        country,
+        remote: remote || /remote/i.test(loc),
+        posted: isoDate(posted),
+        deadline: null, // open until the employer removes it
+        url,
+        source: e.name,
+        summary: summarize(html),
+        tags: [loc].filter((l) => l && l.length < 60),
+      });
+    };
+    await Promise.all(employers.map(async (e) => {
+      try {
+        if (e.ats === 'greenhouse') {
+          const { jobs = [] } = await getJson(`https://boards-api.greenhouse.io/v1/boards/${e.slug}/jobs?content=true`);
+          for (const j of jobs) add(e, { id: j.id, title: j.title, loc: j.location?.name, url: j.absolute_url, posted: j.first_published || j.updated_at, html: j.content });
+        } else if (e.ats === 'lever') {
+          const jobs = await getJson(`https://api.lever.co/v0/postings/${e.slug}?mode=json`);
+          for (const j of jobs) add(e, { id: j.id, title: j.text, loc: [j.categories?.location, ...(j.categories?.allLocations || [])].filter(Boolean).join(', '), url: j.hostedUrl, posted: j.createdAt, html: j.descriptionPlain || j.description, remote: j.workplaceType === 'remote' });
+        } else if (e.ats === 'workable') {
+          const { jobs = [] } = await getJson(`https://apply.workable.com/api/v1/widget/accounts/${e.slug}?details=true`);
+          for (const j of jobs) add(e, { id: j.shortcode, title: j.title, loc: [j.city, j.state, j.country].filter(Boolean).join(', '), url: j.url || j.application_url, posted: j.published_on || j.created_at, html: j.description, remote: j.telecommuting });
+        }
+      } catch (err) {
+        console.log(`\n  ! ${e.name}: ${err.message.slice(0, 80)}`);
+      }
+    }));
+    return items;
+  },
+
   // Humanitarian & development jobs, internships, consultancies and trainings
   // (UN OCHA). Needs a FREE approved app name – request one at
   // https://apidoc.reliefweb.int/parameters#appname and set it as the
@@ -182,7 +252,7 @@ for (const [name, run] of Object.entries(sources)) {
     console.log(`${open.length} open`);
   } catch (err) {
     // keep what we had last time from this source, minus anything now closed
-    const prefix = { grantsgov: 'gg-', remotive: 'rm-', reliefweb: 'rw-' }[name];
+    const prefix = { grantsgov: 'gg-', remotive: 'rm-', reliefweb: 'rw-', employers: 'em-' }[name];
     const kept = previous.items.filter((o) => o.id.startsWith(prefix) && isOpen(o));
     all.push(...kept);
     report[name] = `failed (${err.message}); kept ${kept.length} from last run`;

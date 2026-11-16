@@ -249,12 +249,13 @@
   function renderHome() {
     const week = items.filter((o) => o.deadline && daysUntil(o.deadline) <= 7).length;
     const fresh = items.filter((o) => o.posted && -daysUntil(o.posted) <= 7).length;
-    const live = { open: items.length, week, fresh, countries: new Set(items.map((o) => o.country)).size };
+    const live = { open: items.length, week, fresh, africa: items.filter((o) => o.africa).length };
     $$('[data-stat]').forEach((el) => countUp(el, live[el.dataset.stat]));
 
     const cat = {};
     for (const o of items) cat[o.type] = (cat[o.type] || 0) + 1;
     cat.remote = items.filter((o) => o.remote).length;
+    cat.africa = items.filter((o) => o.africa).length;
     $$('[data-cat]').forEach((el) => {
       const n = cat[el.dataset.cat] || 0;
       el.textContent = n.toLocaleString('en');
@@ -263,7 +264,12 @@
 
     const rail = (sel, list, empty) => { $(sel).innerHTML = list.length ? list.map(card).join('') : `<p class="rail-empty">${empty}</p>`; };
     rail('#rail-closing', items.filter((o) => o.deadline).sort((a, b) => a.deadline.localeCompare(b.deadline)).slice(0, 12), 'Nothing closing in the next few days.');
-    rail('#rail-new', [...items].sort((a, b) => (b.posted || '').localeCompare(a.posted || '')).slice(0, 12), 'New opportunities are added every day.');
+    // Just added: last 14 days with African ones first, topped up with the newest of the rest
+    const newest = (a, b) => (b.posted || '').localeCompare(a.posted || '');
+    const recent = items.filter((o) => o.posted && -daysUntil(o.posted) <= 14)
+      .sort((a, b) => (b.africa ? 1 : 0) - (a.africa ? 1 : 0) || newest(a, b));
+    const justAdded = [...new Set([...recent, ...[...items].sort(newest)])].slice(0, 12);
+    rail('#rail-new', justAdded, 'New opportunities are added every day.');
     const featured = items.filter((o) => o.featured);
     if (featured.length) { $('#featured-section').hidden = false; rail('#rail-featured', featured.slice(0, 12), ''); }
   }
@@ -282,6 +288,7 @@
   const matchesQ = (o, q) => !q || `${o.title} ${o.org} ${o.country} ${TYPES[o.type]} ${o.summary}`.toLowerCase().includes(q);
   const TABS = [
     ['all', 'All', () => true],
+    ['africa', 'In Africa', (o) => o.africa],
     ['closing', 'Closing soon', (o) => o.deadline && daysUntil(o.deadline) <= 7],
     ['new', 'New', (o) => o.posted && -daysUntil(o.posted) <= 7],
     ['remote', 'Remote', (o) => o.remote],
@@ -316,7 +323,10 @@
     const list = inTab.filter((o) => !state.chip || keyOf(o) === state.chip);
     const byDeadline = (a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999');
     const byPosted = (a, b) => (b.posted || '').localeCompare(a.posted || '');
-    list.sort(state.tab === 'closing' ? byDeadline : (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || byPosted(a, b));
+    // default order: featured first, then opportunities in Africa, then newest
+    list.sort(state.tab === 'closing' ? byDeadline
+      : state.tab === 'new' ? byPosted
+      : (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || (b.africa ? 1 : 0) - (a.africa ? 1 : 0) || byPosted(a, b));
 
     const res = $('#results');
     if (!list.length) {
