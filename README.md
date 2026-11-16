@@ -95,11 +95,21 @@ In `scripts/build.mjs`, fill in `SITE.email` (e.g. `contact@fursahub.com`) and a
 The contact page, footer and "Post an opportunity" buttons appear automatically.
 Free email for your own domain: **Cloudflare Email Routing** forwards `contact@yourdomain` to your Gmail.
 
-### Your own domain (later)
-1. Buy a domain (~$10/year), e.g. at Cloudflare or Namecheap.
-2. GitHub: **Settings → Pages → Custom domain**, then follow GitHub's DNS instructions.
-3. Change `SITE.url` in `scripts/build.mjs` to `https://your-domain.com` and push.
-4. Add the site to **Google Search Console** and submit `https://your-domain.com/sitemap.xml`.
+### Your own domain (everything is prepared, only these steps remain)
+1. Buy the domain (~$10/year), e.g. `fursahub.org` at Cloudflare or Namecheap.
+2. In `scripts/build.mjs` set `domain: 'fursahub.org'` and push. This updates every link and the sitemap, and creates the `CNAME` file.
+3. At your domain registrar, add GitHub's DNS records (four `A` records for `@` and a `CNAME` for `www`
+   pointing to `kali-ai02.github.io`, see GitHub's "Managing a custom domain" guide).
+4. GitHub → **Settings → Pages → Custom domain**: enter the domain, then tick **Enforce HTTPS** when offered.
+5. Free email: Cloudflare **Email Routing** → forward `contact@yourdomain` to your Gmail. Put it in `SITE.email`.
+6. Google Search Console: add the new domain as a property, verify, and submit `https://yourdomain/sitemap.xml`.
+7. ReliefWeb: request the API app name using `contact@yourdomain` (see "Turn on ReliefWeb").
+
+### AdSense (after you have the domain)
+1. Apply at adsense.google.com with your domain.
+2. Put your publisher ID in `SITE.adsensePublisherId` (e.g. `'pub-1234567890123456'`) and push.
+   This adds Google's ad code to every page **and** creates `ads.txt` automatically.
+3. In AdSense, set up the free **Privacy & messaging** consent message (required for visitors from Europe).
 
 ## AdSense: important
 

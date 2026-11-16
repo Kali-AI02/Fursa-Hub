@@ -11,8 +11,11 @@ import { readFile, writeFile, mkdir, rm, readdir, cp } from 'node:fs/promises';
 const SITE = {
   name: 'FursaHub',
   tagline: 'Jobs, internships, grants and scholarships you can still apply for',
-  // Where the site lives. Change to your own domain later, e.g. 'https://fursahub.com'
-  url: 'https://kali-ai02.github.io/Fursa-Hub',
+  // ✏️ YOUR DOMAIN: after buying it, write it here (e.g. 'fursahub.org'), push, then add the
+  // same domain in GitHub → Settings → Pages → Custom domain. Leave '' to use the GitHub address.
+  domain: '',
+  // The GitHub Pages address, used while `domain` is empty
+  githubUrl: 'https://kali-ai02.github.io/Fursa-Hub',
   // Public contact email, e.g. 'contact@fursahub.com'. Leave '' until you have one.
   email: '',
   // Social links (leave '' to hide). Full URLs.
@@ -25,13 +28,22 @@ const SITE = {
   },
   // Optional photo behind the homepage headline: put a file in assets/img/ and write e.g. 'img/hero.jpg'
   heroImage: '',
-  // After AdSense approval, paste the <script> tag Google gives you here:
+  // ✏️ ADSENSE: your publisher ID from AdSense (looks like 'pub-1234567890123456').
+  // Filling it in adds Google's ad code to every page AND creates the ads.txt file.
+  // (AdSense needs your own domain: ads.txt only works at the root of a domain.)
+  adsensePublisherId: '',
+  // Anything else Google asks you to paste inside <head> (normally leave empty)
   adsenseHead: '',
   // Google Search Console verification code (the content="..." part of the meta tag)
   googleVerification: 'KNgnhlyvS3wz_3uPlrjBfV-LSx4hrAqM-tvZrlEtB54',
   // Google Analytics Measurement ID, e.g. 'G-XXXXXXXXXX' ('' = off)
   analyticsId: 'G-0SVXYLWFEQ',
 };
+SITE.url = SITE.domain ? `https://${SITE.domain.replace(/^https?:\/\/|\/+$/g, '')}` : SITE.githubUrl;
+if (SITE.adsensePublisherId) {
+  SITE.adsensePublisherId = SITE.adsensePublisherId.replace(/^ca-/, '');
+  SITE.adsenseHead = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${SITE.adsensePublisherId}" crossorigin="anonymous"></script>\n${SITE.adsenseHead}`;
+}
 
 const root = new URL('../', import.meta.url);
 const out = new URL('site/', root);
@@ -182,7 +194,7 @@ ${body}
         <a href="${r}jobs.html">Jobs</a><a href="${r}internships.html">Internships</a>
         <a href="${r}scholarships.html">Scholarships</a><a href="${r}grants.html">Grants</a></div>
       <div><h4>FursaHub</h4>
-        <a href="${r}guides/index.html">Guides</a><a href="${r}about.html">About</a>
+        <a href="${r}guides/index.html">Guides</a><a href="${r}about.html">About</a><a href="${r}faq.html">FAQ</a>
         <a href="${r}contact.html">Contact us</a><a href="${r}contact.html#post">Post an opportunity</a></div>
       <div><h4>Legal</h4>
         <a href="${r}privacy-policy.html">Privacy Policy</a><a href="${r}terms.html">Terms</a>
@@ -567,7 +579,7 @@ for (const o of items) {
 
 // Static pages
 await page('contact.html', layout({ title: `Contact us | ${SITE.name}`, description: 'Contact FursaHub or post an opportunity for free.', body: contactPage(), active: 'contact', path: 'contact.html' }), '0.4');
-for (const name of ['about', 'privacy-policy', 'terms']) {
+for (const name of ['about', 'faq', 'privacy-policy', 'terms']) {
   const c = await readContent(`${name}.html`);
   await page(`${name}.html`, layout({ title: `${c.title} | ${SITE.name}`, description: c.description, body: `<div class="wrap prose">${c.body}</div>`, path: `${name}.html` }), '0.3');
 }
@@ -590,6 +602,10 @@ await writeFile(new URL('sitemap.xml', out), `<?xml version="1.0" encoding="UTF-
 ${urls.map(([u, p]) => `<url><loc>${SITE.url}/${u}</loc><lastmod>${TODAY}</lastmod><priority>${p}</priority></url>`).join('\n')}
 </urlset>`);
 await writeFile(new URL('robots.txt', out), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
+// Custom domain for GitHub Pages
+if (SITE.domain) await writeFile(new URL('CNAME', out), SITE.url.replace('https://', '') + '\n');
+// AdSense authorised sellers file
+if (SITE.adsensePublisherId) await writeFile(new URL('ads.txt', out), `google.com, ${SITE.adsensePublisherId}, DIRECT, f08c47fec0942fa0\n`);
 await writeFile(new URL('404.html', out), layout({
   title: `Not found | ${SITE.name}`, description: 'Page not found', path: '404.html', base: true,
   body: `<section class="hero page-hero"><div class="wrap"><span class="hero-emoji" aria-hidden="true">🔍</span><h1>This page isn't here</h1><p>The opportunity may have closed and been removed automatically.</p><p><a class="btn" href="index.html">See what's open now ${svg('arrow', 18)}</a></p></div></section>`,
