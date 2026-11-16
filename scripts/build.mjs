@@ -124,8 +124,15 @@ ${base ? `<base href="${BASE_PATH}">` : ''}
 <link rel="canonical" href="${SITE.url}/${path}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${SITE.name}">
+<meta property="og:url" content="${SITE.url}/${path}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
+<meta property="og:image" content="${SITE.url}/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FursaHub: jobs, scholarships, internships and grants you can still apply for">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${SITE.url}/img/og.jpg">
 <meta name="theme-color" content="#4f46e5">
 ${SITE.googleVerification ? `<meta name="google-site-verification" content="${esc(SITE.googleVerification)}">` : ''}
 ${SITE.analyticsId ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(SITE.analyticsId)}"></script>
@@ -342,7 +349,7 @@ function homePage(items, guides) {
       </div>
       <div class="cta-actions">
         <a class="btn light" href="contact.html#post">${svg('plus', 18)} Post an opportunity</a>
-        <a class="btn outline" href="contact.html">${svg('mail', 18)} Contact us</a>
+        <a class="btn whatsapp" data-wa href="https://wa.me/?text=${encodeURIComponent(`Find jobs, scholarships, internships and grants you can still apply for, free and updated every day: ${SITE.url}/`)}" target="_blank" rel="noopener">${svg('chat', 18)} Share FursaHub on WhatsApp</a>
       </div>
     </div>
   </div>
@@ -451,6 +458,7 @@ function detailPage(o, related) {
         <button class="btn ghost" data-save="${esc(o.id)}">Save</button>
         <button class="btn ghost" data-share>Share</button>
       </div>
+      <a class="btn whatsapp" data-wa href="https://wa.me/?text=${encodeURIComponent(`${o.title} (${o.org})${o.deadline ? ` · Deadline ${fmtDate(o.deadline)}` : ''}\n${SITE.url}/o/${o.slug}.html`)}" target="_blank" rel="noopener">${svg('chat', 18)} Share on WhatsApp</a>
     </aside>
   </div>
 

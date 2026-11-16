@@ -12,6 +12,10 @@
   const esc = (s = '') => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Google Analytics events (does nothing if Analytics isn't loaded).
+  // In Analytics, mark "apply_click" as a Key event: Admin → Events.
+  const track = (name, params = {}) => { try { window.gtag?.('event', name, params); } catch {} };
+
   // ---------- dates ----------
   const pad = (n) => String(n).padStart(2, '0');
   const now = new Date();
@@ -69,14 +73,24 @@
     // update every Save button for this id (it can appear in a rail and the list)
     $$(`[data-save="${CSS.escape(id)}"]`).forEach((b) => { b.setAttribute('aria-pressed', saved.has(id)); b.textContent = saved.has(id) ? 'Saved' : 'Save'; });
     toast(saved.has(id) ? 'Saved ✓' : 'Removed from saved');
+    if (saved.has(id)) track('save_opportunity', { item_id: id });
   }
-  async function share(url, title) {
+  async function share(url, title, id) {
     try {
-      if (navigator.share) return await navigator.share({ title, url });
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        track('share', { method: 'device', item_id: id || 'site', content_type: 'opportunity' });
+        return;
+      }
       await navigator.clipboard.writeText(url);
       toast('Link copied');
+      track('share', { method: 'copy_link', item_id: id || 'site', content_type: 'opportunity' });
     } catch {}
   }
+
+  // WhatsApp share buttons
+  $$('[data-wa]').forEach((a) => a.addEventListener('click', () =>
+    track('share', { method: 'whatsapp', item_id: $('.detail')?.dataset.id || 'site', content_type: 'opportunity' })));
   function toast(msg) {
     $('.toast')?.remove();
     const t = document.createElement('div');
@@ -154,7 +168,14 @@
       sb.setAttribute('aria-pressed', saved.has(id)); sb.textContent = saved.has(id) ? 'Saved' : 'Save';
       sb.addEventListener('click', () => toggleSave(id));
     }
-    $('[data-share]', detail)?.addEventListener('click', () => share(location.href, document.title));
+    $('[data-share]', detail)?.addEventListener('click', () => share(location.href, document.title, detail.dataset.id));
+    // The most important event: a visitor went to apply
+    $('.apply', detail)?.addEventListener('click', () => track('apply_click', {
+      item_id: detail.dataset.id,
+      item_name: $('h1', detail)?.textContent.slice(0, 100),
+      item_category: $('.detail-head .badge', detail)?.textContent,
+      source: $('.apply', detail).textContent.replace(/^Apply on |\s*↗$/g, ''),
+    }));
     return;
   }
 
@@ -354,10 +375,19 @@
   }
 
   // ---------- events ----------
-  let timer;
+  let timer, searchTimer, lastTracked = '';
   const goBrowse = () => { if (isHome) $('#browse').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); };
-  searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = searchEl.value; state.shown = 24; render(); }, 180); });
-  searchEl.closest('form').addEventListener('submit', () => { state.q = searchEl.value; render(); goBrowse(); searchEl.blur(); });
+  // report a search once the visitor stops typing (shows what people look for)
+  const trackSearch = () => {
+    const term = searchEl.value.trim().toLowerCase();
+    if (term.length >= 3 && term !== lastTracked) { lastTracked = term; track('search', { search_term: term.slice(0, 100) }); }
+  };
+  searchEl.addEventListener('input', () => {
+    clearTimeout(timer); clearTimeout(searchTimer);
+    timer = setTimeout(() => { state.q = searchEl.value; state.shown = 24; render(); }, 180);
+    searchTimer = setTimeout(trackSearch, 1500);
+  });
+  searchEl.closest('form').addEventListener('submit', () => { state.q = searchEl.value; render(); goBrowse(); searchEl.blur(); clearTimeout(searchTimer); trackSearch(); });
   countryEl.addEventListener('change', () => { state.country = countryEl.value; store.set('country', state.country); state.shown = 24; render(); goBrowse(); });
   $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-tab]'); if (b) { state.tab = b.dataset.tab; state.shown = 24; render(); } });
   $('#chips').addEventListener('click', (e) => { const b = e.target.closest('[data-chip]'); if (b) { state.chip = b.dataset.chip; state.shown = 24; render(); } });
@@ -367,6 +397,6 @@
     const s = e.target.closest('.card [data-save]');
     if (s) { toggleSave(s.dataset.save); if (view === 'saved') render(); return; }
     const sh = e.target.closest('.card [data-share]');
-    if (sh) share(new URL(sh.dataset.share, location.href).href, sh.dataset.title);
+    if (sh) share(new URL(sh.dataset.share, location.href).href, sh.dataset.title, sh.closest('.card')?.querySelector('[data-save]')?.dataset.save);
   });
 })();

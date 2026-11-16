@@ -2,6 +2,9 @@
    FursaHub: lively homepage & extras (loaded after style.css)
    ===================================================================== */
 .small { font-size: .85rem; }
+.btn.whatsapp { background: #25d366; color: #073b1d; }
+.btn.whatsapp:hover { background: #20bd5a; }
+.detail-side .btn.whatsapp { width: 100%; margin-top: 8px; }
 .btn.light { background: #fff; color: #1e1b4b; }
 .btn.outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.7); }
 .btn.outline:hover { background: rgba(255,255,255,.12); }
