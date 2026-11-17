@@ -155,8 +155,14 @@ ${base ? `<base href="${BASE_PATH}">` : ''}
 <meta name="twitter:image" content="${SITE.url}/img/og.jpg">
 <meta name="theme-color" content="#4f46e5">
 ${SITE.googleVerification ? `<meta name="google-site-verification" content="${esc(SITE.googleVerification)}">` : ''}
-${SITE.analyticsId ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(SITE.analyticsId)}"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${esc(SITE.analyticsId)}');</script>` : ''}
+${SITE.analyticsId ? `<script>
+/* Google Analytics: only on the real website, so local tests on this computer are never counted */
+if (location.hostname === '${new URL(SITE.url).hostname}') {
+  var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=${esc(SITE.analyticsId)}'; document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || []; window.gtag = function () { dataLayer.push(arguments); };
+  gtag('js', new Date()); gtag('config', '${esc(SITE.analyticsId)}');
+}
+</script>` : ''}
 <link rel="icon" href="${r}img/favicon.svg" type="image/svg+xml">
 <script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="${r}css/style.css">
